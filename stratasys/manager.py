@@ -61,7 +61,7 @@ class Manager:
         eeprom = bytearray(0x71)
 
         # serial number
-        struct.pack_into("<d", eeprom, 0x0, cartridge.serial_number)
+        struct.pack_into("<d", eeprom, 0x00, cartridge.serial_number)
         # material id
         struct.pack_into("<d", eeprom, 0x08, material.get_id_from_name(cartridge.material_name))
         # manufacturing lot
@@ -115,18 +115,18 @@ class Manager:
         cartridge_packed = buffer(cartridge_packed)
 
         # Serial number
-        serial_number = struct.unpack_from("<d", cartridge_packed, 0x0)[0]
+        serial_number = struct.unpack_from("<d", buffer(cartridge_packed), 0x00)[0]
         # Material
-        material_name = material.get_name_from_id(int(struct.unpack_from("<d", cartridge_packed, 0x08)[0]))
+        material_name = material.get_name_from_id(int(struct.unpack_from("<d", buffer(cartridge_packed), 0x08)[0]))
         # Manufacturing lot
-        manufacturing_lot = struct.unpack_from("<20s", cartridge_packed, 0x10)[0].split('\x00')[0]
+        manufacturing_lot = struct.unpack_from("<20s", buffer(cartridge_packed), 0x10)[0].split('\x00')[0]
         # Manufacturing datetime
         (mfg_datetime_year,
             mfg_datetime_month,
             mfg_datetime_day,
             mfg_datetime_hour,
             mfg_datetime_minute,
-            mfg_datetime_second) = struct.unpack_from("<HBBBBH", cartridge_packed, 0x28)
+            mfg_datetime_second) = struct.unpack_from("<HBBBBH", buffer(cartridge_packed), 0x28)
         mfg_datetime = datetime.datetime(mfg_datetime_year + 1900,
                 mfg_datetime_month,
                 mfg_datetime_day,
@@ -139,7 +139,7 @@ class Manager:
             use_datetime_day,
             use_datetime_hour,
             use_datetime_minute,
-            use_datetime_second) = struct.unpack_from("<HBBBBH", cartridge_packed, 0x30)
+            use_datetime_second) = struct.unpack_from("<HBBBBH", buffer(cartridge_packed), 0x30)
         use_datetime = datetime.datetime(use_datetime_year + 1900,
                 use_datetime_month,
                 use_datetime_day,
@@ -147,15 +147,15 @@ class Manager:
                 use_datetime_minute,
                 use_datetime_second)
         # Initial material quantity
-        initial_material_quantity = struct.unpack_from("<d", cartridge_packed, 0x38)[0]
+        initial_material_quantity = struct.unpack_from("<d", buffer(cartridge_packed), 0x38)[0]
         # Version
-        version = struct.unpack_from("<H", cartridge_packed, 0x24)[0]
+        version = struct.unpack_from("<H", buffer(cartridge_packed), 0x24)[0]
         # Key fragment
-        key_fragment = str(struct.unpack_from("<8s", cartridge_packed, 0x48)[0]).encode("hex")
+        key_fragment = str(struct.unpack_from("<8s", buffer(cartridge_packed), 0x48)[0]).encode("hex")
         # Current material quantity
-        current_material_quantity = struct.unpack_from("<d", cartridge_packed, 0x58)[0]
+        current_material_quantity = struct.unpack_from("<d", buffer(cartridge_packed), 0x58)[0]
         # Signature
-        signature = struct.unpack_from("<9s", cartridge_packed, 0x68)[0]
+        signature = struct.unpack_from("<9s", buffer(cartridge_packed), 0x68)[0]
 
         return cartridge.Cartridge(serial_number, material_name, manufacturing_lot, mfg_datetime, use_datetime, initial_material_quantity, current_material_quantity, key_fragment, version, signature)
 
